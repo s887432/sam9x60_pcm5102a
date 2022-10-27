@@ -1,0 +1,88 @@
+diff --git a/sam9x60ek.its b/sam9x60ek.its
+index ae403e1..0085184 100644
+--- a/sam9x60ek.its
++++ b/sam9x60ek.its
+@@ -224,6 +224,21 @@
+ 				algo = "sha1";
+ 			};
+ 		};
++		
++		fdt_i2s_pcm5102a {
++			description = "Device Tree blob pcm5102a Audio board overlay";
++			data = /incbin/("./sam9x60ek/sam9x60ek_i2s_pcm5102a.dtbo");
++			type = "flat_dt";
++			arch = "arm";
++			compression = "none";
++			load = <0x231c0000>;
++			hash-1 {
++				algo = "crc32";
++			};
++			hash-2 {
++				algo = "sha1";
++			};
++		};
+ 
+ 	};
+ 
+@@ -300,5 +315,10 @@
+ 			description = "FDT overlay blob for PWM";
+ 			fdt = "fdt_pwm";
+ 		};
++		
++		i2s_pcm5102a {
++			description = "FDT overlay blob for I2S pcm5102a audio board";
++			fdt = "fdt_i2s_pcm5102a";
++		};
+ 	};
+ };
+diff --git a/sam9x60ek/sam9x60ek_i2s_pcm5102a.dtso b/sam9x60ek/sam9x60ek_i2s_pcm5102a.dtso
+new file mode 100644
+index 0000000..008c9a4
+--- /dev/null
++++ b/sam9x60ek/sam9x60ek_i2s_pcm5102a.dtso
+@@ -0,0 +1,45 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * sam9x60-ek_i2s_proto.dtso - Device Tree file for SAM9x60-EK board
++ * overlay blob for I2S with PROTO board. The blob uses i2s0 and i2c2 on flx4.
++ *
++ * Copyright (C) 2019 Microchip Technology, Inc.
++ * Author: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
++ *
++ */
++/dts-v1/;
++/plugin/;
++
++&i2s {
++	status = "okay";
++};
++
++
++&{/} {
++	pcm5102a: pcm5102a {
++		compatible = "ti,pcm5102a";
++		#sound-dai-cells = <0>;
++	};
++	
++	sound {
++		compatible = "simple-audio-card";
++		simple-audio-card,name= "pcm5102a";
++		simple-audio-card,dai-link@0 {
++			format = "i2s";
++			bitclock-master = <&sndcpu0>;
++			frame-master = <&sndcpu0>;
++			
++			sndcpu0: cpu {
++				sound-dai = <&i2s>;
++			};
++			codec {
++				sound-dai = <&pcm5102a>;
++			};
++		};
++        };
++};
++
++&qspi {
++	status = "disabled";
++};
++
